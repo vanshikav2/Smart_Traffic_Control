@@ -3,12 +3,17 @@ import math
 class SmartCar:
     def __init__(self, destination):
         self.speed = 0  # current speed of the car
+        
+        
         self.position = (0, 0)  # current position of the car (x, y)
         self.destination = destination  # destination of the car
+        
+        
+        
         self.turning = False  # indicates whether the car is currently turning
         self.turn_destination = None  # destination after turning
         self.other_cars = []  # list of other cars nearby
-
+        
     def update_position(self, new_position):
         self.position = new_position
 

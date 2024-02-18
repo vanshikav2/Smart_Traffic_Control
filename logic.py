@@ -1,12 +1,18 @@
 import random
 import tkinter as tk
 import time
+from enum import Enum
 
 
-left_random = [(-50, 200, 1, 0), (-50, 250, 1, 0)]
-right_random = [(450, 100, -1, 0), (450, 150, -1, 0)]
-up_random = [(200, -50, 0, 1), (250, -50, 0, 1)]
-down_random = [(100, 450, 0, -1), (150, 450, 0, -1)]
+class axisCheck(Enum):
+    X = 1
+    Y = 2
+
+
+left_random = [(-50, 200, 1, 0, axisCheck.X), (-50, 250, 1, 0, axisCheck.X)]
+right_random = [(450, 100, -1, 0, axisCheck.X), (450, 150, -1, 0, axisCheck.X)]
+up_random = [(200, -50, 0, 1, axisCheck.Y), (250, -50, 0, 1, axisCheck.Y)]
+down_random = [(100, 450, 0, -1, axisCheck.Y), (150, 450, 0, -1, axisCheck.Y)]
 
 
 def draw_dotted_lines(canvas):
@@ -68,24 +74,24 @@ def spawn_car(event, direction):
     current_time = time.time()
 
     # Check if at least 1 second has passed since the last spawn
-    if current_time - last_spawn_time >= 0.2:
+    if current_time - last_spawn_time >= 0.1:
         # Update the last spawn time
         last_spawn_time = current_time
 
         def define_direction(direction):
             match direction:
                 case "UP":
-                    x, y, xMove, yMove = random.choice(up_random)
+                    x, y, xMove, yMove, aCheck = random.choice(up_random)
                 case "DOWN":
-                    x, y, xMove, yMove = random.choice(down_random)
+                    x, y, xMove, yMove, aCheck = random.choice(down_random)
                 case "LEFT":
-                    x, y, xMove, yMove = random.choice(left_random)
+                    x, y, xMove, yMove, aCheck = random.choice(left_random)
                 case "RIGHT":
-                    x, y, xMove, yMove = random.choice(right_random)
-            return x, y, xMove, yMove
+                    x, y, xMove, yMove, aCheck = random.choice(right_random)
+            return x, y, xMove, yMove, aCheck
 
         # Initial position of the circle
-        x, y, xMove, yMove = define_direction(direction)
+        x, y, xMove, yMove, aCheck = define_direction(direction)
 
         # Create the circle
         circle = canvas.create_oval(x, y, x + 50, y + 50, fill="red")
@@ -100,7 +106,11 @@ def spawn_car(event, direction):
             x = xMove
             x += 5
             if x < 400:
-                canvas.after(1, move_circle)
+                # if x < 200:
+                #   yMove = xMove
+                #   xMove = 0
+                canvas.after(5, move_circle)
+                print("Moving")
             else:
                 canvas.delete(circle)
 
@@ -121,6 +131,7 @@ canvas.pack()
 draw_dotted_lines(canvas)
 
 draw_white_square(canvas)
+
 draw_corner_squares(canvas)
 
 
