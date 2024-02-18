@@ -1,56 +1,78 @@
-class Car:
-    """ Car object contains the automated car model that interacts with other Car
-    Objects and Intersection Objects
+import math
 
-    ==== Attributes ====
-    Destination: The destination of the car
-    Lane: The current lane of the car
-    Signal: The signal from the other car or intersection
-    move: The direction of the car
-    Speed: The speed of the car
+class SmartCar:
+    def __init__(self, destination):
+        self.speed = 0  # current speed of the car
+        self.position = (0, 0)  # current position of the car (x, y)
+        self.destination = destination  # destination of the car
+        self.turning = False  # indicates whether the car is currently turning
+        self.turn_destination = None  # destination after turning
+        self.other_cars = []  # list of other cars nearby
 
-    """
-    def __init__(self, destination, speed, lane):
-        self.destination = destination
-        self.speed = speed
-        self.lane = lane
-        self.signal = None
+    def update_position(self, new_position):
+        self.position = new_position
 
-    def reduce_speed(self):
-        """
-        Reduce speed to avoid collision
-        """
-        self.speed -= 5  # Example reduction rate, adjust as needed
-        if self.speed < 0:
-            self.speed = 0
+    def update_speed(self, new_speed):
+        self.speed = new_speed
 
-    def change_lane(self, side):
-        """
-        Change lane if possible
-        """
-        if side == "right":
-            self.lane = "Right"
-        else:
-            self.lane = "Left"
+    def add_other_car(self, car):
+        self.other_cars.append(car)
 
-    def stop(self):
-        """
-        Stop the car
-        """
-        self.speed = 0
+    def avoid_collision(self):
+        for car in self.other_cars:
+            distance = math.sqrt((car.position[0] - self.position[0])**2 + (car.position[1] - self.position[1])**2)
+            if distance < 10:  # Assuming a safe distance of 10 units
+                if self.turning and car.turning:
+                    if self.turn_destination == car.turn_destination:
+                        # Cars have same turn destination, adjust speed to avoid collision
+                        self.update_speed(min(self.speed, distance - 1))
+                else:
+                    # Adjust speed to avoid collision
+                    self.update_speed(min(self.speed, distance - 1))
 
-    def move_forward(self):
-        """
-        Move the car forward
-        """
-        # Example implementation: Increase speed by a fixed amount
-        self.speed += 5
+    def communicate_intent(self):
+        for car in self.other_cars:
+            car.receive_intent(self, self.turning, self.turn_destination)
 
-    def distance_to(self, other_car):
-        """
-        Calculate distance to another car
-        :param other_car: Another car object
-        :return: Distance between this car and the other car
-        """
-        # Euclidean distance between cars in 2D space
-        return ((self.lane - other_car.lane) ** 2 + (self.speed - other_car.speed) ** 2) ** 0.5
+    def receive_intent(self, sender, turning, turn_destination):
+        # Receive intent from another car
+        if self.turning and turning:
+            if self.turn_destination == turn_destination:
+                # Both cars have same turn destination, adjust behavior
+                # For example, one car could slow down to allow the other to turn first
+                pass
+        # Handle other cases as needed
+        if not turning and not self.turning:  # If both cars are going straight
+            self.update_speed(min(self.speed, sender.speed))  # Adjust speed based on the other car's speed
+
+    def turn(self, direction, destination):
+        self.turning = True
+        self.turn_destination = destination
+        # Perform turning logic here
+
+    def drive_to_destination(self):
+        while self.position != self.destination:
+            self.avoid_collision()
+            self.communicate_intent()  # Exchange intentions with other cars
+            if self.turning:
+                if self.position == self.turn_destination:
+                    self.turning = False
+                    self.turn_destination = None
+                else:
+                    continue  # Wait until reaching the turn destination
+            # Drive towards destination
+            self.update_position((self.position[0] + self.speed, self.position[1]))
+
+
+# Example usage:
+car1 = SmartCar((100, 200))
+car2 = SmartCar((150, 250))
+
+car1.add_other_car(car2)
+car2.add_other_car(car1)
+
+car1.update_speed(5)
+car2.update_speed(3)
+
+car1.drive_to_destination()
+car2.drive_to_destination()
