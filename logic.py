@@ -3,6 +3,12 @@ import tkinter as tk
 import time
 
 
+left_random = [(-50, 200, 1, 0), (-50, 250, 1, 0)]
+right_random = [(450, 100, -1, 0), (450, 150, -1, 0)]
+up_random = [(200, -50, 0, 1), (250, -50, 0, 1)]
+down_random = [(100, 450, 0, -1), (150, 450, 0, -1)]
+
+
 def draw_dotted_lines(canvas):
     # Draw dotted line from top middle to down middle
     canvas.create_line(200, 0, 200, 400, fill="black", width=3)
@@ -55,7 +61,7 @@ window.configure(background="white")
 last_spawn_time = 0
 
 
-def spawn_circle(event):
+def spawn_car(event, direction):
     global last_spawn_time
 
     # Get the current time
@@ -66,17 +72,32 @@ def spawn_circle(event):
         # Update the last spawn time
         last_spawn_time = current_time
 
-        # Generate random coordinates for the circle
-        x = -50
-        y = 200
+        def define_direction(direction):
+            match direction:
+                case "UP":
+                    x, y, xMove, yMove = random.choice(up_random)
+                case "DOWN":
+                    x, y, xMove, yMove = random.choice(down_random)
+                case "LEFT":
+                    x, y, xMove, yMove = random.choice(left_random)
+                case "RIGHT":
+                    x, y, xMove, yMove = random.choice(right_random)
+            return x, y, xMove, yMove
+
+        # Initial position of the circle
+        x, y, xMove, yMove = define_direction(direction)
 
         # Create the circle
         circle = canvas.create_oval(x, y, x + 50, y + 50, fill="red")
 
         # Move the circle from left to right
+
         def move_circle():
             nonlocal x
-            canvas.move(circle, 5, 0)
+            canvas.move(circle, xMove, yMove)
+
+            # Smart car logic goes here
+            x = xMove
             x += 5
             if x < 400:
                 canvas.after(1, move_circle)
@@ -87,60 +108,10 @@ def spawn_circle(event):
         move_circle()
 
 
-# Bind the 'o' key to the spawn_circle function
-window.bind("<Left>", spawn_circle)
-
-# Create the canvas
-canvas = tk.Canvas(window, width=400, height=400, bg="white")
-canvas.pack()
-
-# Draw the dotted lines and half squares
-draw_dotted_lines(canvas)
-
-draw_white_square(canvas)
-draw_corner_squares(canvas)
-
-
-# Lock the aspect ratio
-window.resizable(False, False)
-# Start the Tkinter event loop
-window.mainloop()
-
-
-def spawn_car(event):
-    global last_spawn_time
-
-    # Get the current time
-    current_time = window.winfo_toplevel().time()
-
-    # Check if at least 1 second has passed since the last spawn
-    if current_time - last_spawn_time >= 1000:
-        # Update the last spawn time
-        last_spawn_time = current_time
-
-        # Generate random coordinates for the circle
-        x = 0
-        y = 200
-
-        # Create the circle
-        circle = canvas.create_oval(x, y, x + 50, y + 50, fill="green")
-
-        # Move the circle from left to right
-        def move_circle():
-            nonlocal x
-            canvas.move(circle, 5, 0)
-            x += 5
-            if x < 400:
-                canvas.after(5, move_circle)
-            else:
-                canvas.delete(circle)
-
-        # Start moving the circle
-        move_circle()
-
-
-# Bind the 'o' key to the spawn_car function
-window.bind("o", spawn_car)
+window.bind("<Right>", lambda event: spawn_car(event, "LEFT"))
+window.bind("<Left>", lambda event: spawn_car(event, "RIGHT"))
+window.bind("<Up>", lambda event: spawn_car(event, "DOWN"))
+window.bind("<Down>", lambda event: spawn_car(event, "UP"))
 
 # Create the canvas
 canvas = tk.Canvas(window, width=400, height=400, bg="white")
