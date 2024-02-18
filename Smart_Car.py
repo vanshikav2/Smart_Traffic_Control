@@ -16,10 +16,11 @@ class SmartCar:
         self.xMove = xMove
         self.yMove = yMove
         self.aCheck = aCheck
+
         if random.randint(0, 1) == 1:
-            self.moveOut = True
-        else:
             self.moveOut = False
+        else:
+            self.moveOut = True
 
     def update_x(self, new_x):
         self.x = new_x
@@ -49,7 +50,7 @@ class SmartCar:
                     + (future_car_y - future_self_y) ** 2
                 )
 
-                if distance < 75:  # Assuming each car has a radius of 25 units
+                if distance < 95:  # Assuming each car has a radius of 25 units
                     print(
                         "Collision predicted between cars at positions",
                         self.x,
@@ -58,15 +59,28 @@ class SmartCar:
                         car.x,
                         car.y,
                     )
-                    if self.moveOut == car.moveOut:
-                        self.moveOut = not car.moveOut
 
                     # Handle predicted collision here
-                    if self.moveOut:
+                    if (self.x >= 100 and self.x <= 300) and (
+                        self.y >= 100 and self.y <= 300
+                    ):
                         self.xMove *= 1.1
                         self.yMove *= 1.1
                         car.xMove *= 0.9
                         car.yMove *= 0.9
+                    elif (
+                        (self.x >= 100 and self.x <= 300)
+                        and (self.y >= 100 and self.y <= 300)
+                        and (car.x >= 100 and car.x <= 300)
+                        and (car.y >= 100 and car.y <= 300)
+                    ):
+                        if self.moveOut == car.moveOut:
+                            self.moveOut = not self.moveOut
+                        if self.moveOut:
+                            self.xMove *= 1.1
+                            self.yMove *= 1.1
+                            car.xMove *= 0.9
+                            car.yMove *= 0.9
                     else:
                         self.xMove *= 0.9
                         self.yMove *= 0.9  # Reduce speed to avoid collision
@@ -74,9 +88,9 @@ class SmartCar:
                         car.yMove *= 1.1
                 else:
                     if self.xMove != self.original_xMove:
-                        self.xMove += (self.original_xMove - self.xMove) / 5
+                        self.xMove += (self.original_xMove - self.xMove) / 15
                     elif self.yMove != self.original_yMove:
-                        self.yMove += (self.original_yMove - self.yMove) / 5
+                        self.yMove += (self.original_yMove - self.yMove) / 15
 
     def communicate_intent(self):
         for car in self.other_cars:

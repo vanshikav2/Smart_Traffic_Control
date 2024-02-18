@@ -77,7 +77,7 @@ def spawn_car(event, direction):
     current_time = time.time()
 
     # Check if at least 1 second has passed since the last spawn
-    if current_time - last_spawn_time >= 0.5:
+    if current_time - last_spawn_time >= 0.4:
         # Update the last spawn time
         last_spawn_time = current_time
 
