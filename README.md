@@ -8,5 +8,5 @@ By Eliminating the Phantom Traffic Jam by incorporating V2V(Vehicle-to-vehicle) 
 
 The structure of the repo is as follows: 
 
->Smart_Car.py contains the Smart_Car implementation.
->logic.py contains the UI logic that makes the Smart_Car and coordinates the objects with the UI aspect for a real demo.
+`Smart_Car.py` contains the Smart_Car implementation.
+`logic.py` contains the UI logic that makes the Smart_Car and coordinates the objects with the UI aspect for a real demo.
