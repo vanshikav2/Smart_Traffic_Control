@@ -1,6 +1,7 @@
 import random
 import tkinter as tk
 import time
+from Smart_Car import SmartCar
 from enum import Enum
 
 
@@ -9,10 +10,12 @@ class axisCheck(Enum):
     Y = 2
 
 
+cars = []
+
 left_random = [(-50, 200, 1, 0, axisCheck.X), (-50, 250, 1, 0, axisCheck.X)]
 right_random = [(450, 100, -1, 0, axisCheck.X), (450, 150, -1, 0, axisCheck.X)]
-up_random = [(200, -50, 0, 1, axisCheck.Y), (250, -50, 0, 1, axisCheck.Y)]
-down_random = [(100, 450, 0, -1, axisCheck.Y), (150, 450, 0, -1, axisCheck.Y)]
+up_random = [(100, -50, 0, 1, axisCheck.Y), (150, -50, 0, 1, axisCheck.Y)]
+down_random = [(200, 450, 0, -1, axisCheck.Y), (250, 450, 0, -1, axisCheck.Y)]
 
 
 def draw_dotted_lines(canvas):
@@ -92,30 +95,32 @@ def spawn_car(event, direction):
 
         # Initial position of the circle
         x, y, xMove, yMove, aCheck = define_direction(direction)
+        car = SmartCar(x, y, xMove, yMove, aCheck, 5)
+        cars.append(car)
 
-        # Create the circle
-        circle = canvas.create_oval(x, y, x + 50, y + 50, fill="red")
-
-        # Move the circle from left to right
+        circle = canvas.create_oval(x, y, x + 50, y + 50, fill="red", outline="black")
 
         def move_circle():
             nonlocal x
-            canvas.move(circle, xMove, yMove)
+            canvas.move(circle, car.xMove, car.yMove)
 
-            # Smart car logic goes here
-            x = xMove
-            x += 5
-            if x < 400:
-                # if x < 200:
-                #   yMove = xMove
-                #   xMove = 0
-                canvas.after(5, move_circle)
-                print("Moving")
-            else:
+            # Update the car's position
+            car.x += car.xMove
+            car.y += car.yMove
+
+            # Check if the car has moved off the canvas
+            if car.x < -50 or car.x > 450 or car.y < -50 or car.y > 450:
+                # Delete the circle and remove the car from the list
                 canvas.delete(circle)
+                cars.remove(car)
+            else:
+                # Continue moving the circle
+                car.avoid_collision(cars)
+                canvas.after(5, move_circle)
 
-        # Start moving the circle
-        move_circle()
+    # Start moving the circle
+
+    move_circle()
 
 
 window.bind("<Right>", lambda event: spawn_car(event, "LEFT"))
