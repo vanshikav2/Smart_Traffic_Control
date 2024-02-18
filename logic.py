@@ -77,7 +77,7 @@ def spawn_car(event, direction):
     current_time = time.time()
 
     # Check if at least 1 second has passed since the last spawn
-    if current_time - last_spawn_time >= 0.1:
+    if current_time - last_spawn_time >= 0.5:
         # Update the last spawn time
         last_spawn_time = current_time
 
@@ -118,7 +118,7 @@ def spawn_car(event, direction):
                 car.avoid_collision(cars)
                 canvas.after(5, move_circle)
 
-    # Start moving the circle
+            # Start moving the circle
 
     move_circle()
 
